@@ -5,4 +5,4 @@ Import the experiment data from the bioharness onto the computer. Divide the "Br
 
 
 ## Dependencies
-Relies on Matlab2019b and uses standard packages. Both the  FindPeaks code and the tight subplot code need to be opened simultaneously to be able to plot the graphs.
+Relies on Matlab2019b and uses standard packages. Both the  FindPeaks code and the tight subplot code need to be in the same folder to be able to plot the graphs.
