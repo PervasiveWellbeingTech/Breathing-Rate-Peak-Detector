@@ -1,11 +1,10 @@
 close all;
 clear all; clc;
 %Remember every 2 points are separated by 40 ms, or 25 Hz in this data
-trial = 6; %Change it for the 6 trials
-apply_filter = 1;
+trial = 1; %Change it for the 6 trials
 
-Start_idx = 1829 + (trial-1)*2*60*25; %Need to change for each subject
-End_idx = Start_idx + 2*60*25-1;
+Start_idx = 1829 + (trial-1)*3*60*25; %Need to change for each subject, 3 is the minutes
+End_idx = Start_idx + 3*60*25-1;
 
 samp_freq = 25; %Hz is the rate at which it seems to have been collected assuming equal spacing between consecutive
 
@@ -30,13 +29,11 @@ figure('units','normalized','outerposition',[0 0 1 1]);
 subbreathe_plot = tight_subplot(1,1, [0.05 0], [0.15 0.05], [0.05 0.01]);
 axes(subbreathe_plot(1));
 plot(timeBR,BR_Data,'b');
-target =median(BR_Data);
-yline(target,'k', 'LineWidth', 2);
-xline(20,'LineWidth',2);
-set(gca,'XTick',[],'TickDir','in','fontsize',12,'fontweight','bold');
+xlabel('Time (s)','fontsize', 12,'fontweight','bold');
+set(gca,'TickDir','in','fontsize',12,'fontweight','bold');
 ylabel('Breathing Rate Raw','fontsize', 12, 'fontweight','bold');
 title(['Trial :',num2str(trial)],'fontsize', 12, 'fontweight','bold');
-xlim([0 120]);
+xlim([0 180]);
 
 [LOCS_BR,PKS_BR] = ginput(2);  %%gives you start and end time, need to convert to index
 start_user_val = LOCS_BR(1,1)*25; %25 hz sample rate
@@ -48,15 +45,6 @@ end_user_idx = round(end_user_val); %start index value once user has selected
 BR_Data_User_Input = BR_Data(start_user_idx:end_user_idx);
 
 BR_Data_unfiltered = BR_Data_User_Input;
-% 
-% if apply_filter
-%     filterorder = 4;
-%     low_pass_freq = 5;% Hz
-%     filtercutoff =low_pass_freq/(samp_freq/2);
-%     filtertype = 'low';
-%     [b,a] = butter(filterorder,filtercutoff,filtertype);
-%     BR_Data_User_Input = filtfilt(b,a,BR_Data_User_Input);
-% end
 
 timeBR = transpose(0:1/samp_freq:length(BR_Data_User_Input)/samp_freq-1/samp_freq);
 clearvars -except timeBR samp_freq BR_Data_User_Input trial BR_Data_unfiltered;
