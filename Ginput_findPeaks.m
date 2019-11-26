@@ -1,12 +1,15 @@
 close all;
 clear all; clc;
 %Remember every 2 points are separated by 40 ms, or 25 Hz in this data
-trial = 1; %Change it for the 6 trials
-
-Start_idx = 1829 + (trial-1)*3*60*25; %Need to change for each subject, 3 is the minutes
-End_idx = Start_idx + 3*60*25-1;
-
+trial = 2; %Change it for the 6 trials
+% Length of each trial (in seconds)
+period = 120; %seconds, need to change based on trial length
 samp_freq = 25; %Hz is the rate at which it seems to have been collected assuming equal spacing between consecutive
+
+Trial_Start_Idx = 75; %Need to change the first index from Zephyr raw data when 1st trial starts for each subject
+Start_idx = Trial_Start_Idx + (trial-1)*period*samp_freq; 
+End_idx = Start_idx + period*samp_freq-1;
+
 
 [filename, pathname] = uigetfile('*.csv', ' Please select the Breathing Rate & R-R Input file');
 
@@ -22,7 +25,7 @@ BR_Data = Breathing_Rate_Data(Start_idx:End_idx);
 
 
 timeBR = transpose(0:1/samp_freq:length(BR_Data)/samp_freq-1/samp_freq);
-clearvars -except timeBR samp_freq BR_Data trial BR_Data_unfiltered;
+clearvars -except timeBR samp_freq BR_Data trial BR_Data_unfiltered period;
 
 
 figure('units','normalized','outerposition',[0 0 1 1]);
@@ -33,12 +36,12 @@ xlabel('Time (s)','fontsize', 12,'fontweight','bold');
 set(gca,'TickDir','in','fontsize',12,'fontweight','bold');
 ylabel('Breathing Rate Raw','fontsize', 12, 'fontweight','bold');
 title(['Trial :',num2str(trial)],'fontsize', 12, 'fontweight','bold');
-xlim([0 180]);
+xlim([0 period]);
 
 [LOCS_BR,PKS_BR] = ginput(2);  %%gives you start and end time, need to convert to index
-start_user_val = LOCS_BR(1,1)*25; %25 hz sample rate
+start_user_val = LOCS_BR(1,1)*samp_freq; %25 hz sample rate
 start_user_idx = round(start_user_val); %start index value once user has selected
-end_user_val = LOCS_BR(2,1)*25; %25 hz sample rate
+end_user_val = LOCS_BR(2,1)*samp_freq; %25 hz sample rate
 end_user_idx = round(end_user_val); %start index value once user has selected
 
 % cuts data with ginput places
@@ -67,7 +70,7 @@ axes(subbreathe_plot(1));
 plot(timeBR,BR_Data_unfiltered,'r',timeBR,BR_Data_User_Input,'b',timeBR(LOCS_BR2),BR_Data_User_Input(LOCS_BR2),'k*');
 target =median(BR_Data_User_Input);
 yline(target,'k', 'LineWidth', 2);
-legend('BR unfiltered','BR filtered','BR Peaks','BR Median');
+legend('BR unfiltered','BR Peaks','BR Median');
 set(gca,'XTick',[],'TickDir','in','fontsize',12,'fontweight','bold');
 ylabel('Breathing Rate Raw','fontsize', 12, 'fontweight','bold');
 title(['Trial :',num2str(trial)],'fontsize', 12, 'fontweight','bold');
@@ -77,5 +80,9 @@ plot(BR_Time,BR_freq,'b', BR_Time, BR_freq2, 'r');
 xlabel('Time (s)','fontsize', 12,'fontweight','bold');
 ylabel('Breathing Rate (BPM)','fontsize', 12,'fontweight','bold');
 set(gca,'TickDir','in','fontsize',12,'fontweight','bold');
+legend('BR from Peaks','BR Median filter');
 
 saveas(gca, "pilot_01_trial_" + num2str(trial) + ".tif"); %edit for each pilot number
+
+to_save = [BR_Time,BR_freq, BR_freq2];
+save(['pilot_01_trial_',num2str(trial),'.mat'],'to_save');
